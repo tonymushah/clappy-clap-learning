@@ -1,16 +1,13 @@
 use clap::Parser;
 
 #[derive(Parser)]
-#[command(version, about, long_about = None, next_line_help = true)]
+#[command(version, about, long_about = None)]
 struct Cli {
-    #[arg(long)]
-    two: String,
-    #[arg(long)]
-    one: String,
+    name: Option<String>,
 }
 
 fn main() {
     let cli = Cli::parse();
-    println!("two: {:?}", cli.two);
-    println!("one: {:?}", cli.one);
+
+    println!("name: {:?}", cli.name.as_deref());
 }
