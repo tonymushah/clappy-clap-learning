@@ -1,29 +1,13 @@
-use clap::{Args, Parser, Subcommand};
+use clap::Parser;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None, propagate_version = true)]
 struct Cli {
-    #[command(subcommand)]
-    commands: Option<Commands>,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    Add(AddArgs),
-}
-
-#[derive(Args)]
-struct AddArgs {
-    name: Option<String>,
+    #[arg(default_value_t = 2024)]
+    port: u16,
 }
 
 fn main() {
     let cli = Cli::parse();
-    if let Some(commands) = &cli.commands {
-        match commands {
-            Commands::Add(name) => {
-                println!("'clappy-clap-learning' was used, name is {:?}", name.name);
-            }
-        }
-    }
+    println!("port: {:?}", cli.port);
 }
