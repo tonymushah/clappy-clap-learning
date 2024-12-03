@@ -1,33 +1,75 @@
-use std::ops::RangeInclusive;
-
-use clap::Parser;
+use clap::{Args, Parser};
 
 #[derive(Parser)]
-#[command(version, about, long_about = None, propagate_version = true)]
+#[command(version, about, long_about = None)]
 struct Cli {
-    /// Network port to use
-    #[arg(value_parser = port_in_range)]
-    port: u16,
+    #[command(flatten)]
+    vers: Vers,
+
+    /// some regular input
+    #[arg(group = "input")]
+    input_file: Option<String>,
+
+    /// some special input argument
+    #[arg(long, group = "input")]
+    spec_in: Option<String>,
+
+    #[arg(short, requires = "input")]
+    config: Option<String>,
+}
+
+#[derive(Args)]
+#[group(required = true, multiple = false)]
+struct Vers {
+    /// set version manually
+    #[arg(long, value_name = "VER")]
+    set_ver: Option<String>,
+
+    /// auto inc major
+    #[arg(long)]
+    major: bool,
+
+    /// auto inc minor
+    #[arg(long)]
+    minor: bool,
+
+    /// auto inc patch
+    #[arg(long)]
+    patch: bool,
 }
 
 fn main() {
     let cli = Cli::parse();
-    println!("PORT = {}", cli.port);
-}
 
-const PORT_RANGE: RangeInclusive<usize> = 1..=65535;
+    // Let's assume the old version 1.2.3
+    let mut major = 1;
+    let mut minor = 2;
+    let mut patch = 3;
 
-fn port_in_range(s: &str) -> Result<u16, String> {
-    let port: usize = s
-        .parse()
-        .map_err(|_| format!("`{s}` isn't a port number"))?;
-    if PORT_RANGE.contains(&port) {
-        Ok(port as u16)
+    // See if --set_ver was used to set the version manually
+    let vers = &cli.vers;
+    let version = if let Some(ver) = vers.set_ver.as_deref() {
+        ver.to_string()
     } else {
-        Err(format!(
-            "port not in range {}-{}",
-            PORT_RANGE.start(),
-            PORT_RANGE.end()
-        ))
+        // Increment the one requested (in a real program, we'd reset the lower numbers)
+        let (maj, min, pat) = (vers.major, vers.minor, vers.patch);
+        match (maj, min, pat) {
+            (true, _, _) => major += 1,
+            (_, true, _) => minor += 1,
+            (_, _, true) => patch += 1,
+            _ => unreachable!(),
+        };
+        format!("{major}.{minor}.{patch}")
+    };
+
+    println!("Version: {version}");
+
+    // Check for usage of -c
+    if let Some(config) = cli.config.as_deref() {
+        let input = cli
+            .input_file
+            .as_deref()
+            .unwrap_or_else(|| cli.spec_in.as_deref().unwrap());
+        println!("Doing work using input {input} and config {config}");
     }
 }
