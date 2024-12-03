@@ -1,31 +1,14 @@
-use clap::{Parser, ValueEnum};
+use clap::Parser;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None, propagate_version = true)]
 struct Cli {
-    /// What mode to run the program in
-    #[arg(value_enum)]
-    mode: Mode,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
-enum Mode {
-    /// Run swiftly
-    Fast,
-    /// Crawl slowly but steadily
-    ///
-    /// Ignored paragraph
-    Slow,
+    /// Network port to use
+    #[arg(value_parser = clap::value_parser!(u16).range(1..))]
+    port: u16,
 }
 
 fn main() {
     let cli = Cli::parse();
-    match cli.mode {
-        Mode::Fast => {
-            println!("Hare");
-        }
-        Mode::Slow => {
-            println!("Tortoise");
-        }
-    }
+    println!("PORT = {}", cli.port);
 }
