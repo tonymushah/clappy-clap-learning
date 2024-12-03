@@ -1,10 +1,10 @@
 use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(version, about, long_about = None)]
+#[command(version, about, long_about = None, propagate_version = true)]
 struct Cli {
     #[command(subcommand)]
-    commands: Commands,
+    commands: Option<Commands>,
 }
 
 #[derive(Subcommand)]
@@ -19,10 +19,11 @@ struct AddArgs {
 
 fn main() {
     let cli = Cli::parse();
-
-    match &cli.commands {
-        Commands::Add(name) => {
-            println!("'clappy-clap-learning' was used, name is {:?}", name.name);
+    if let Some(commands) = &cli.commands {
+        match commands {
+            Commands::Add(name) => {
+                println!("'clappy-clap-learning' was used, name is {:?}", name.name);
+            }
         }
     }
 }
