@@ -1,22 +1,23 @@
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Cli {
-    #[arg(short, long)]
-    name: Vec<String>,
-    #[arg(short, long, action = clap::ArgAction::Count)]
-    verbose: u8,
+    #[command(subcommand)]
+    commands: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    Add { name: Option<String> },
 }
 
 fn main() {
     let cli = Cli::parse();
 
-    println!(
-        "verbose {} time{}...",
-        cli.verbose,
-        if cli.verbose < 2 { "" } else { "s" }
-    );
-
-    println!("name: {:?}", cli.name);
+    match &cli.commands {
+        Commands::Add { name } => {
+            println!("'clappy-clap-learning' was used, name is {name:?}");
+        }
+    }
 }
