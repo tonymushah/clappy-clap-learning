@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand};
+use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -9,15 +9,20 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    Add { name: Option<String> },
+    Add(AddArgs),
+}
+
+#[derive(Args)]
+struct AddArgs {
+    name: Option<String>,
 }
 
 fn main() {
     let cli = Cli::parse();
 
     match &cli.commands {
-        Commands::Add { name } => {
-            println!("'clappy-clap-learning' was used, name is {name:?}");
+        Commands::Add(name) => {
+            println!("'clappy-clap-learning' was used, name is {:?}", name.name);
         }
     }
 }
